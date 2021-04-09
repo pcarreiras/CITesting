@@ -31,14 +31,7 @@ stages:
         jdkArchitectureOption: 'x64'
         publishJUnitResults: false
         codeCoverageToolOption: JaCoCo
-        goals: 'package jacoco:report'
-    - task: PublishCodeCoverageResults@1
-      displayName: 'Publish code coverage'
-      inputs:
-        codeCoverageTool: JaCoCo
-        summaryFileLocation: 'target/jacoco.exec'
-        reportDirectory: '**/site/jacoco'
-        
+        goals: 'package jacoco:report'        
 - stage: codeAnalysis
   dependsOn:
   - tests
