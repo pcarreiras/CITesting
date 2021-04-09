@@ -4,7 +4,7 @@
     <groupId>com.agora.cicdtests</groupId>
     <artifactId>app</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
 
     <name>cicdTests</name>
