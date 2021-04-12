@@ -47,7 +47,6 @@ stages:
         repository: '$(imageRepository)'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
-        buildContext: 'target'
         tags: '$(tag)'
     - upload: manifests
       artifact: manifests
