@@ -32,7 +32,7 @@ stages:
         jdkVersionOption: '1.8'
         jdkArchitectureOption: 'x64'
         publishJUnitResults: false
-        goals: 'package'
+        goals: 'package -DskipTests'
 - stage: tests
   dependsOn:
   - compile
