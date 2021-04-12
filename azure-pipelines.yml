@@ -1,6 +1,24 @@
 trigger:
-- master
+- cicd
 
+resources:
+- repo: self
+
+variables:
+
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: 'a223471d-a54c-4ddb-94fc-8f8ea02915e4'
+  imageRepository: 'pcarreirascitesting'
+  containerRegistry: 'agoracicdcontainerregistry.azurecr.io'
+  dockerfilePath: '**/Dockerfile'
+  tag: '$(Build.BuildId)'
+  imagePullSecret: 'agoracicdcontainerregistrye43c-auth'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+  # Name of the new namespace being created to deploy the PR changes.
+  k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
 stages:
 - stage: compile
   jobs:
