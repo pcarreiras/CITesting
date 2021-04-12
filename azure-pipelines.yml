@@ -38,7 +38,7 @@ stages:
   - compile
   condition: succeeded('compile')
   jobs:
-  - job: tests
+  - job: testsCoverage
     steps:
     - task: Maven@3
       inputs:
@@ -52,8 +52,8 @@ stages:
         goals: 'package jacoco:report'
 - stage: codeAnalysis
   dependsOn:
-  - tests
-  condition: succeeded('tests')
+  - testsCoverage
+  condition: succeeded('testsCoverage')
   jobs:
   - job: runSonar
     steps:
@@ -68,6 +68,9 @@ stages:
         testResultsFiles: '**/surefire-reports/TEST-*.xml'
         goals: 'package'
 - stage: BuildImage
+  dependsOn:
+  - runSonar
+  condition: succeeded('runSonar')
   jobs:
   - job: build
     steps:
