@@ -1,7 +1,3 @@
-# Deploy to Azure Kubernetes Service
-# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger:
 - cicd
 
@@ -23,13 +19,60 @@ variables:
 
   # Name of the new namespace being created to deploy the PR changes.
   k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
-
 stages:
-- stage: Build
-  displayName: Build
+- stage: compile
   jobs:
   - job: build
-    displayName: Build
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: false
+        goals: 'package'
+- stage: tests
+  dependsOn:
+  - compile
+  condition: succeeded('compile')
+  jobs:
+  - job: testsCoverage
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: false
+        codeCoverageToolOption: JaCoCo
+        goals: 'package jacoco:report'
+- stage: codeAnalysis
+  dependsOn:
+  - tests
+  condition: succeeded('tests')
+  jobs:
+  - job: runSonar
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        goals: 'package'
+- stage: BuildImage
+  dependsOn:
+  - codeAnalysis
+  condition: succeeded('codeAnalysis')
+  jobs:
+  - job: build
     steps:
     - task: Maven@3
       inputs:
@@ -50,14 +93,13 @@ stages:
         tags: '$(tag)'
     - upload: manifests
       artifact: manifests
-
 - stage: Deploy
   displayName: Deploy stage
-  dependsOn: Build
+  dependsOn: BuildImage
 
   jobs:
   - deployment: Deploy
-    condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
+    condition: and(succeeded(), not(startsWith(variables['BuildImage.SourceBranch'], 'refs/pull/')))
     displayName: Deploy
     pool:
       vmImage: $(vmImageName)
