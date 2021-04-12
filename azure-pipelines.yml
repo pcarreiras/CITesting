@@ -26,10 +26,22 @@ variables:
 
 stages:
 - stage: Build
-  displayName: Build stage
+  displayName: Build App
   jobs:
+  - job: buildApp
+    displayName: Build stage
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: false
+        goals: 'package'
   - job: Build
-    displayName: Build
+    displayName: Build Image
     pool:
       vmImage: $(vmImageName)
     steps:
