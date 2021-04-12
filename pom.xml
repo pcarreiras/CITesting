@@ -26,7 +26,6 @@
         <sonar.java.source>${maven.compiler.source}</sonar.java.source>
         <sonar.sourceEncoding>${project.build.sourceEncoding}</sonar.sourceEncoding>
         <sonar.host.url>http://52.224.53.215:9000</sonar.host.url>
-        <SKIP_TESTS>false</SKIP_TESTS>
     </properties>
 
     <dependencies>
