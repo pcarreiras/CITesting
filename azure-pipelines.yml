@@ -52,8 +52,8 @@ stages:
         goals: 'package jacoco:report'
 - stage: codeAnalysis
   dependsOn:
-  - testsCoverage
-  condition: succeeded('testsCoverage')
+  - tests
+  condition: succeeded('tests')
   jobs:
   - job: runSonar
     steps:
@@ -69,8 +69,8 @@ stages:
         goals: 'package'
 - stage: BuildImage
   dependsOn:
-  - runSonar
-  condition: succeeded('runSonar')
+  - codeAnalysis
+  condition: succeeded('codeAnalysis')
   jobs:
   - job: build
     steps:
