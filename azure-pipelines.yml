@@ -1,35 +1,57 @@
-# Deploy to Azure Kubernetes Service
-# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger:
-- cicd
-
-resources:
-- repo: self
-
-variables:
-
-  # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'a223471d-a54c-4ddb-94fc-8f8ea02915e4'
-  imageRepository: 'pcarreirascitesting'
-  containerRegistry: 'agoracicdcontainerregistry.azurecr.io'
-  dockerfilePath: '**/Dockerfile'
-  tag: '$(Build.BuildId)'
-  imagePullSecret: 'agoracicdcontainerregistrye43c-auth'
-
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
-
-  # Name of the new namespace being created to deploy the PR changes.
-  k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
+- master
 
 stages:
-- stage: Build
-  displayName: Build
+- stage: compile
   jobs:
   - job: build
-    displayName: Build
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: false
+        goals: 'package'
+- stage: tests
+  dependsOn:
+  - compile
+  condition: succeeded('compile')
+  jobs:
+  - job: tests
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: false
+        codeCoverageToolOption: JaCoCo
+        goals: 'package jacoco:report'        
+- stage: codeAnalysis
+  dependsOn:
+  - tests
+  condition: succeeded('tests')
+  jobs:
+  - job: runSonar
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        goals: 'package'
+- stage: BuildImage
+  jobs:
+  - job: build
     steps:
     - task: Maven@3
       inputs:
@@ -50,7 +72,6 @@ stages:
         tags: '$(tag)'
     - upload: manifests
       artifact: manifests
-
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: Build
