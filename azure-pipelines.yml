@@ -49,7 +49,7 @@ stages:
         jdkArchitectureOption: 'x64'
         publishJUnitResults: false
         codeCoverageToolOption: JaCoCo
-        goals: 'package jacoco:report'        
+        goals: 'package jacoco:report'
 - stage: codeAnalysis
   dependsOn:
   - tests
