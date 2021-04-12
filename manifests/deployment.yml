@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: pcarreirascitesting 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pcarreirascitesting
+  template:
+    metadata:
+      labels:
+        app: pcarreirascitesting 
+    spec:
+      containers:
+        - name: pcarreirascitesting 
+          image: agoracicdcontainerregistry.azurecr.io/pcarreirascitesting
+          ports:
+          - containerPort: 8080
