@@ -23,6 +23,7 @@ stages:
 - stage: compile
   jobs:
   - job: build
+    displayName: Build artifact
     steps:
     - task: Maven@3
       inputs:
@@ -39,6 +40,7 @@ stages:
   condition: succeeded('compile')
   jobs:
   - job: testsCoverage
+    displayName: Execute JaCoCo
     steps:
     - task: Maven@3
       inputs:
@@ -56,6 +58,7 @@ stages:
   condition: succeeded('tests')
   jobs:
   - job: runSonar
+    displayName: Run SonarQube
     steps:
     - task: Maven@3
       inputs:
@@ -73,6 +76,7 @@ stages:
   condition: succeeded('codeAnalysis')
   jobs:
   - job: build
+    displayName: Build and push Image
     steps:
     - task: Maven@3
       inputs:
