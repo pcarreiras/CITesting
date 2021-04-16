@@ -11,6 +11,6 @@ public class GreetingController {
 
     @RequestMapping("/hello")
     public String sayHello() {
-        return "Hello world again";
+        return "Hello world";
     }
 }

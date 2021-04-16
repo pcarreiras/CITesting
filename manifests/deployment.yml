@@ -2,6 +2,7 @@ apiVersion : apps/v1
 kind: Deployment
 metadata:
   name: pcarreirascitesting 
+  namespace: pcarreiras-debug
 spec:
   replicas: 1
   selector:
@@ -14,6 +15,6 @@ spec:
     spec:
       containers:
         - name: pcarreirascitesting 
-          image: agoracicdcontainerregistry.azurecr.io/pcarreirascitesting
+          image: agoracicdcontainerregistry.azurecr.io/pipelines-testing:latest
           ports:
-          - containerPort: 8080
+          - containerPort: 9080
