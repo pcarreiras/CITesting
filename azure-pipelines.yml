@@ -20,10 +20,10 @@ variables:
   # Name of the new namespace being created to deploy the PR changes.
   k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
 stages:
-- stage: compile
+- stage: BuildImage
   jobs:
   - job: build
-    displayName: Build artifact
+    displayName: Build and push Image
     steps:
     - task: Maven@3
       inputs:
@@ -36,23 +36,6 @@ stages:
         testResultsFiles: '**/surefire-reports/TEST-*.xml'
         codeCoverageToolOption: JaCoCo
         goals: 'clean package jacoco:prepare-agent verify sonar:sonar'
-- stage: BuildImage
-  dependsOn:
-  - compile
-  condition: succeeded('compile')
-  jobs:
-  - job: build
-    displayName: Build and push Image
-    steps:
-    - task: Maven@3
-      inputs:
-        mavenPomFile: 'pom.xml'
-        mavenOptions: '-Xmx3072m'
-        javaHomeOption: 'JDKVersion'
-        jdkVersionOption: '1.8'
-        jdkArchitectureOption: 'x64'
-        publishJUnitResults: false
-        goals: 'package'
     - task: Docker@2
       displayName: Build and push an image to container registry
       inputs:
