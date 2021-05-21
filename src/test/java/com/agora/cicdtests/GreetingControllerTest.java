@@ -14,7 +14,7 @@ public class GreetingControllerTest {
 	@Test
 	public void sayHello() throws IOException {
 		GreetingController greetingController = new GreetingController();
-		assertEquals(greetingController.sayHello(), "Hello");
+		assertEquals(greetingController.sayHello(), "Hello again");
 	}
 
 
